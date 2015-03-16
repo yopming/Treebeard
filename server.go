@@ -3,25 +3,28 @@ package main
 //http://demo.vemic.com:5000/files/AAPP/旅行箱/1.0/test
 
 import (
-    "log"
+    "github.com/codegangsta/martini"
     "net/http"
-    "os"
-    "sort"
-    "io/ioutil"
+    "fmt"
 )
 
 
 func main() {
-    fs := http.FileServer(http.Dir("static"))
-    http.Handle("/", fs)
+    m := martini.Classic()
 
-    log.Println("Listening...")
-    http.ListenAndServe(":3000", nil)
+    // Parse the URL
+    m.Get("/files/**", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprintln(w, r.URL.RequestURI())
+    });
+
+    m.Run()
 }
 
-func FileMTime(file string) (int64, error) {
-    f, err := os.Stat(file)
-    if err != nil {
-        return 0, err
-    }
-    retunr f.ModT
+func stepFolder() {
+}
+
+func generateCollection() {
+}
+
+func callback() {
+}
