@@ -4,23 +4,20 @@ import (
     "os"
     "fmt"
     "strings"
+    "strconv"
     "net/http"
     "path/filepath"
     //"encoding/json"
     "github.com/codegangsta/martini"
 )
 
-type Visitor struct{}
-
-func (v *Visitor) VisitDir(path string, f *os.FileInfo) bool {
-    fmt.Println(path)
-    return true
+type Response struct {
+    AbsPath     string
+    FileItem    []struct {
+        ItemInfo    []string
+        ItemPath    string
+    }
 }
-
-func (v *Visitor) VisitFile(path string, f *os.FileInfo) {
-    fmt.Println(path)
-}
-
 
 func main() {
     path_prefix := "Z:\\"
@@ -32,20 +29,31 @@ func main() {
         message := r.URL.RequestURI()
         prefix := "/files/"
         elite := strings.Split(message, prefix)[1]
-
-        v := &Visitor{}
-        errors := make(chan os.Error, 64)
+        //collection := make(map[string]Json)
 
         if len(elite) > 0 {
             // Step in the real folder
             real_path := filepath.ToSlash(path_prefix) + elite
-            filepath.Walk(real_path, v, errors)
 
-            select {
-                case err := <- errors:
+            itemInfo := map[string]string{}
+
+            filepath.Walk(real_path, func(path string, fileinfo os.FileInfo, err error) error {
+                f, err := os.Stat(path)
+                if err != nil {
                     panic(err)
-                default:
-            }
+                }
+
+                itemInfo["name"] = f.Name()
+                itemInfo["time"] = f.ModTime().Format("01-02 15:04:05") // time.time to string
+                itemInfo["type"] = strconv.FormatInt(f.Size(), 10) // int64 to string
+
+                for key, value := range itemInfo {
+                    fmt.Printf("Key: %s Value: %s \n", key, value)
+                }
+
+                return nil
+            })
+
         }
     });
 
