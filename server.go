@@ -35,7 +35,7 @@ func main() {
             // Step in the real folder
             real_path := filepath.ToSlash(path_prefix) + elite
 
-            itemInfo := map[string]string{}
+            itemInfo := map[string]map[string]string{}
 
             filepath.Walk(real_path, func(path string, fileinfo os.FileInfo, err error) error {
                 f, err := os.Stat(path)
@@ -43,13 +43,13 @@ func main() {
                     panic(err)
                 }
 
-                itemInfo["name"] = f.Name()
-                itemInfo["time"] = f.ModTime().Format("01-02 15:04:05") // time.time to string
-                itemInfo["type"] = strconv.FormatInt(f.Size(), 10) // int64 to string
+                itemInfo["name"]["name"] = f.Name()
+                itemInfo["name"]["time"] = f.ModTime().Format("01-02 15:04:05") // time.time to string
+                itemInfo["name"]["type"] = strconv.FormatInt(f.Size(), 10) // int64 to string
 
-                for key, value := range itemInfo {
-                    fmt.Printf("Key: %s Value: %s \n", key, value)
-                }
+                //for key, value := range itemInfo {
+                    //fmt.Printf("%s: %s \n", key, value)
+                //}
 
                 return nil
             })
