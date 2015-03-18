@@ -2,7 +2,7 @@ package main
 
 import (
     "os"
-    "fmt"
+    //"fmt"
     "strings"
     "strconv"
     "net/http"
@@ -31,8 +31,7 @@ func main() {
         w http.ResponseWriter,
         r *http.Request,
         render render.Render,
-        params martini.Params
-    ) {
+        params martini.Params) {
 
         message := r.URL.RequestURI()
         prefix := "/files/"
@@ -54,26 +53,26 @@ func main() {
 
                 if f.IsDir() {
                     item["type"] = "dir"
-                    item["path"] = real_path
                 } else {
                     item["type"] = "file"
-                    item["path"] = real_path + "/" + f.Name()
                 }
+                item["path"] = filepath.Abs(f.Name())
                 item["time"] = f.ModTime().Format("2004-01-02 15:04:22") // time to string
-                item["type"] = strconv.FormatInt(f.Size(), 10) // int64 to string
+                item["size"] = strconv.FormatInt(f.Size(), 10) // int64 to string
 
-                itemInfo["name"] = item
+                itemInfo[f.Name()] = item
 
                 return nil
             })
 
-            collection, err_collection := json.Marshal(itemInfo)
-            if err_collection != nil {
-                fmt.Println(err_collection)
-            }
+//            collection, err_collection := json.Marshal(itemInfo)
+//            if err_collection != nil {
+//                fmt.Println(err_collection)
+//            }
+
+            render.JSON(200, itemInfo)
         }
 
-        render.JSON(200, collection)
     });
 
     m.Run()
