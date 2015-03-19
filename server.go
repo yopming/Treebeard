@@ -1,8 +1,8 @@
 package main
 
 import (
-    "os"
-    "fmt"
+    //"fmt"
+    "time"
     "strings"
     "strconv"
     "net/http"
@@ -13,26 +13,17 @@ import (
     "github.com/martini-contrib/render"
 )
 
-type Response struct {
-    AbsPath     string
-    FileItem    []struct {
-        ItemInfo    []string
-        ItemPath    string
-    }
-}
 
 func main() {
+    // Static File Folder
     path_prefix := "Z:\\"
 
     m := martini.Classic()
     m.Use(render.Renderer())
+    m.Use(martini.Static(filepath.ToSlash(path_prefix)))
 
     // Parse the URL
-    m.Get("/files/**", func(
-        w http.ResponseWriter,
-        r *http.Request,
-        render render.Render,
-        params martini.Params) {
+    m.Get("/files/**", func(w http.ResponseWriter, r *http.Request, render render.Render, params martini.Params) {
 
         message := r.URL.RequestURI()
         prefix := "/files/"
@@ -41,41 +32,31 @@ func main() {
         if len(elite) > 0 {
             // Step in the real folder
             real_path := filepath.ToSlash(path_prefix) + elite
-            fmt.Println(real_path)
 
-            //itemInfo := map[string]map[string]string{}
             itemInfo := make(map[string]interface{})
-            item     := make(map[string]interface{})
 
             files, _ := ioutil.ReadDir(real_path)
+            i := 0
+
             for _, f := range files {
-                fmt.Println(f.Name())
+                // non-hidden files(starting with .)
+                if !strings.HasPrefix(f.Name(), ".") {
+                    item := make(map[string]interface{})
+
+                    if f.IsDir() {
+                        item["type"] = "Directory"
+                    } else {
+                        item["type"] = "File"
+                    }
+                    if !strings.HasPrefix(f.Name(), ".") {
+                        item["name"] = f.Name()
+                    }
+                    item["time"] = f.ModTime().Format(time.RFC3339)
+                    item["size"] = strconv.FormatInt(f.Size(), 10)
+                    itemInfo[strconv.Itoa(i)] = item
+                }
+                i++
             }
-
-            filepath.Walk(real_path, func(path string, fileinfo os.FileInfo, err error) error {
-                f, err := os.Stat(path)
-                if err != nil {
-                    panic(err)
-                }
-
-                if f.IsDir() {
-                    item["type"] = "dir"
-                } else {
-                    item["type"] = "file"
-                }
-                //item["path"] = filepath.Abs(f.Name())
-                item["time"] = f.ModTime().Format("2004-01-02 15:04:22") // time to string
-                item["size"] = strconv.FormatInt(f.Size(), 10) // int64 to string
-
-                itemInfo[f.Name()] = item
-
-                return nil
-            })
-
-//            collection, err_collection := json.Marshal(itemInfo)
-//            if err_collection != nil {
-//                fmt.Println(err_collection)
-//            }
 
             render.JSON(200, itemInfo)
         }
