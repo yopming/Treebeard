@@ -2,13 +2,14 @@ package main
 
 import (
     "os"
-    //"fmt"
+    "fmt"
     "strings"
     "strconv"
     "net/http"
+    "io/ioutil"
     "path/filepath"
     //"encoding/json"
-    "github.com/codegangsta/martini"
+    "github.com/go-martini/martini"
     "github.com/martini-contrib/render"
 )
 
@@ -40,10 +41,16 @@ func main() {
         if len(elite) > 0 {
             // Step in the real folder
             real_path := filepath.ToSlash(path_prefix) + elite
+            fmt.Println(real_path)
 
             //itemInfo := map[string]map[string]string{}
             itemInfo := make(map[string]interface{})
             item     := make(map[string]interface{})
+
+            files, _ := ioutil.ReadDir(real_path)
+            for _, f := range files {
+                fmt.Println(f.Name())
+            }
 
             filepath.Walk(real_path, func(path string, fileinfo os.FileInfo, err error) error {
                 f, err := os.Stat(path)
@@ -56,7 +63,7 @@ func main() {
                 } else {
                     item["type"] = "file"
                 }
-                item["path"] = filepath.Abs(f.Name())
+                //item["path"] = filepath.Abs(f.Name())
                 item["time"] = f.ModTime().Format("2004-01-02 15:04:22") // time to string
                 item["size"] = strconv.FormatInt(f.Size(), 10) // int64 to string
 
