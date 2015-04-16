@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/go-martini/martini"
+	"github.com/martini-contrib/cors"
 	"github.com/martini-contrib/render"
 	"io/ioutil"
 	"net/http"
@@ -18,6 +19,13 @@ func main() {
 	path_prefix := "D:\\webroot\\e\\website\\demos\\ins\\设计稿"
 
 	m := martini.Classic()
+	m.Use(cors.Allow(&cors.Options{
+		AllowOrigins:     []string{"http://fdc.vemic.com", "http://192.168.27.159:1080"},
+		AllowMethods:     []string{"GET"},
+		AllowHeaders:     []string{"Origin", "x-requested-with", "Content-Type", "Content-Range", "Content-Disposition", "Content-Description"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: false,
+	}))
 	m.Use(render.Renderer())
 	m.Use(martini.Static(filepath.ToSlash(path_prefix)))
 
@@ -45,6 +53,7 @@ func main() {
 
 					if f.IsDir() {
 						item["type"] = "Directory"
+						item["down"] = elite + "/" + f.Name()
 					} else {
 						item["type"] = "File"
 						item["down"] = "http://demo.vemic.com/demos/ins/设计稿/" + elite + "/" + f.Name()
