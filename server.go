@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/go-humanize"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/cors"
 	"github.com/martini-contrib/render"
@@ -11,7 +12,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func main() {
@@ -79,8 +79,9 @@ func ReadGraphic(real_path string, elite string) interface{} {
 			if !strings.HasPrefix(f.Name(), ".") {
 				item["name"] = f.Name()
 			}
-			item["time"] = f.ModTime().Format(time.RFC3339)
-			item["size"] = strconv.FormatInt(f.Size(), 10)
+			item["time"] = f.ModTime().Format("2006/01/02 15:04")
+			item["human_time"] = humanize.Time(f.ModTime())
+			item["size"] = humanize.Bytes(uint64(f.Size()))
 			itemInfo[strconv.Itoa(i)] = item
 		}
 		i++
