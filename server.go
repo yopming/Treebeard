@@ -71,7 +71,11 @@ func ReadGraphic(real_path string, elite string) interface{} {
 
 			if f.IsDir() {
 				item["type"] = "Directory"
-				item["down"] = elite + "/" + f.Name()
+				if elite == "" {
+					item["down"] = f.Name() // root directory
+				} else {
+					item["down"] = elite + "/" + f.Name()
+				}
 			} else {
 				item["type"] = "File"
 				item["down"] = "http://demo.vemic.com/demos/ins/设计稿/" + elite + "/" + f.Name()
