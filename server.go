@@ -66,7 +66,7 @@ func ReadGraphic(real_path string, elite string) interface{} {
 
 	for _, f := range files {
 		// non-hidden files(starting with .)
-		if !strings.HasPrefix(f.Name(), ".") {
+		if !strings.HasPrefix(f.Name(), ".") && f.Name() != "Thumbs.db" {
 			item := make(map[string]interface{})
 
 			if f.IsDir() {
@@ -83,6 +83,7 @@ func ReadGraphic(real_path string, elite string) interface{} {
 			if !strings.HasPrefix(f.Name(), ".") {
 				item["name"] = f.Name()
 			}
+			item["elite"] = elite
 			item["time"] = f.ModTime().Format("2006/01/02 15:04")
 			item["human_time"] = humanize.Time(f.ModTime())
 			item["size"] = humanize.Bytes(uint64(f.Size()))
